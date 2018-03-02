@@ -1,0 +1,22 @@
+@import url('/fonts/noto-sans/font.css');
+
+@import "./bootstrap/bootstrap.scss";
+@import "./font-awesome/fontawesome.scss";
+@import "./font-awesome/fa-light.scss";
+@import "./menu.scss";
+
+.no-gutters {
+  &.container-fluid,&.container {
+    padding-left: 0px;
+    padding-right: 0px;
+    > .row {
+      margin-left: 0px;
+      margin-right: 0px;
+      > div {
+        padding-left: 0px;
+        padding-right: 0px;
+      }
+    }
+  }
+}
+

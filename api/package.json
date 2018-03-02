@@ -1,0 +1,44 @@
+{
+  "name": "web-auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "node build/index.js",
+    "test": "gulp compile && jenkins-mocha --cobertura build/tests/*.test.js",
+    "build": "chmod +x ./build.sh && ./build.sh"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.0.0-beta.40",
+    "@babel/preset-env": "^7.0.0-beta.40",
+    "babel-plugin-autobind-class-methods": "^5.0.1",
+    "del": "^3.0.0",
+    "eslint": "^4.2.0",
+    "expect": "^1.20.2",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-eslint": "^4.0.0",
+    "gulp-sourcemaps": "^2.6.0"
+  },
+  "dependencies": {
+    "apollo-server-express": "^1.3.2",
+    "babel-polyfill": "^6.26.0",
+    "body-parser": "^1.18.2",
+    "connect-redis": "^3.3.3",
+    "cors": "^2.8.4",
+    "debug": "^3.1.0",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "node-fetch": "^1.7.1",
+    "redis": "^2.8.0",
+    "source-map-support": "^0.5.2",
+    "graphql": "^0.12.3",
+    "graphql-tools": "^2.19.0",
+    "helmet": "^3.10.0",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0"
+  }
+}
