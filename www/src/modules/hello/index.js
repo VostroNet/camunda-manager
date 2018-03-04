@@ -13,10 +13,19 @@ const IndexPage = () => (
 );
 
 export default {
-  title: "Hello",
+  header() {
+    return (<h1>
+      <i className={"fal fa-phone-volume header-icon"} />
+      {"Hello"}
+    </h1>);
+  },
+  title() {
+    return (<span>{"Hello"}</span>);
+  },
   name: "hello",
   icon: "fa-phone-volume",
   render: IndexPage,
 };
+
 
 

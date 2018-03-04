@@ -1,9 +1,10 @@
 import React from "react";
 import Link from "gatsby-link";
 import uuid from "uuid/v4";
-
+import createMemoryHistory from "history/createMemoryHistory";
 import DeploymentModule from "../modules/deployments";
 import HelloModule from "../modules/hello";
+import {Router as MemoryRouter} from "react-router";
 
 let modules = {};
 
@@ -11,6 +12,24 @@ let modules = {};
   modules[module.name] = module;
 });
 
+let histories = {};
+function getHistory(tab) {
+  return histories[tab.id];
+}
+function createHistory(tab) {
+  histories[tab.id] = createMemoryHistory({
+    initialEntries: ["/"], // The initial URLs in the history stack
+    initialIndex: 0, // The starting index in the history stack
+    keyLength: 6, // The length of location.key
+    // A function to use to confirm navigation with the user. Required
+    // if you return string prompts from transition hooks (see below)
+    getUserConfirmation: null,
+  });
+  return histories[tab.id];
+}
+function deleteHistory(tab) {
+  delete histories[tab.id];
+}
 
 function getModuleForTab(tab) {
   return modules[tab.name];
@@ -30,6 +49,7 @@ class IndexPage extends React.Component {
       id: uuid(),
       name,
     };
+    createHistory(newTab);
     let activeTab = this.state.activeTab;
     if (!activeTab) {
       activeTab = newTab;
@@ -46,6 +66,7 @@ class IndexPage extends React.Component {
   }
   closeTab(e, tab) {
     e.stopPropagation();
+    deleteHistory(tab);
     let activeTab = this.state.activeTab;
     if (this.state.activeTab.id === tab.id) {
       activeTab = null;
@@ -65,6 +86,9 @@ class IndexPage extends React.Component {
   }
 
   render() {
+
+
+
     return (<div className="container-fluid no-gutters">
       <div className="row">
         <div className="col-md-auto col-12">
@@ -94,10 +118,9 @@ class IndexPage extends React.Component {
                     {"Camunda Manager"}
                   </h1>
                 ) : (
-                  <h1>
-                    <i className={`fal ${getModuleForTab(this.state.activeTab).icon} header-icon`} />
-                    {getModuleForTab(this.state.activeTab).title}
-                  </h1>
+                  <MemoryRouter key={this.state.activeTab.id} history={getHistory(this.state.activeTab)}>
+                    {getModuleForTab(this.state.activeTab).header()}
+                  </MemoryRouter>
                 )}
               </div>
               {this.state.activeTab ? (<div className="col header-close-icon" style={{textAlign: "right"}}>
@@ -115,7 +138,9 @@ class IndexPage extends React.Component {
                     <a href="#" className="tab-close" onClick={(e) => this.closeTab(e, tab)}>
                       <i className="fal fa-times-square" />
                     </a>
-                    {getModuleForTab(tab).title}
+                    <MemoryRouter history={getHistory(tab)}>
+                      {getModuleForTab(tab).title()}
+                    </MemoryRouter>
                   </div>
                 </div>);
               })}
@@ -123,9 +148,13 @@ class IndexPage extends React.Component {
             <div className="row">
               {
                 this.state.tabs.map((tab) => {
-                  const Render = getModuleForTab(this.state.activeTab).render;
+                  console.log("TAB", tab);
+                  const mod = getModuleForTab(tab);
+                  const Render = mod.render;
                   return (<div key={tab.id} style={{display: tab.id === (this.state.activeTab || {}).id ? undefined : "none", width: "100%" }}>
-                    <Render tab={this.state.activeTab} />
+                    <MemoryRouter history={getHistory(tab)}>
+                      <Render tab={this.state.activeTab} />
+                    </MemoryRouter>
                   </div>);
                 })
               }
