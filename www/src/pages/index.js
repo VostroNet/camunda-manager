@@ -1,92 +1,89 @@
 import React from "react";
 import Link from "gatsby-link";
-import uuid from "uuid/v4";
-import createMemoryHistory from "history/createMemoryHistory";
-import DeploymentModule from "../modules/deployments";
-import HelloModule from "../modules/hello";
 import {Router as MemoryRouter} from "react-router";
 
-let modules = {};
+import TabManager from "../managers/tabs";
 
-[DeploymentModule, HelloModule].forEach((module) => {
-  modules[module.name] = module;
-});
 
-let histories = {};
-function getHistory(tab) {
-  return histories[tab.id];
-}
-function createHistory(tab) {
-  histories[tab.id] = createMemoryHistory({
-    initialEntries: ["/"], // The initial URLs in the history stack
-    initialIndex: 0, // The starting index in the history stack
-    keyLength: 6, // The length of location.key
-    // A function to use to confirm navigation with the user. Required
-    // if you return string prompts from transition hooks (see below)
-    getUserConfirmation: null,
-  });
-  return histories[tab.id];
-}
-function deleteHistory(tab) {
-  delete histories[tab.id];
-}
+// let tabs = {};
 
-function getModuleForTab(tab) {
-  return modules[tab.name];
-}
+
+
+// let histories = {};
+// function getHistory(tab) {
+//   return tabs[tab.id].history;
+// }
+// function createHistory(tab) {
+//   tabs[tab.id].history = createMemoryHistory({
+//     initialEntries: ["/"], // The initial URLs in the history stack
+//     initialIndex: 0, // The starting index in the history stack
+//     keyLength: 6, // The length of location.key
+//     // A function to use to confirm navigation with the user. Required
+//     // if you return string prompts from transition hooks (see below)
+//     getUserConfirmation: null,
+//   });
+//   return histories[tab.id];
+// }
+// function deleteHistory(tab) {
+//   delete histories[tab.id];
+// }
+
+
 
 class IndexPage extends React.Component {
 
   constructor() {
     super();
+    this.tabManager = new TabManager();
     this.state = {
-      tabs: [],
-      activeTab: undefined,
+      tabs: this.tabManager.getKeys(),
+      activeTab: this.tabManager.getActiveTab(),
     };
   }
-  addTab(name) {
-    const newTab = {
-      id: uuid(),
-      name,
-    };
-    createHistory(newTab);
+  addTab(type) {
+    const tabId = this.tabManager.add(type);
     let activeTab = this.state.activeTab;
     if (!activeTab) {
-      activeTab = newTab;
+      this.tabManager.setActiveTab(tabId);
+      activeTab = tabId;
     }
+
     return this.setState({
       activeTab,
-      tabs: this.state.tabs.concat(newTab),
+      tabs: this.tabManager.getKeys(),
     });
   }
-  setActiveTab(activeTab) {
+  setActiveTab(tabId) {
+    this.tabManager.setActiveTab(tabId);
     return this.setState({
-      activeTab,
+      activeTab: tabId,
     });
   }
-  closeTab(e, tab) {
+  closeTab(e, tabId) {
     e.stopPropagation();
-    deleteHistory(tab);
+    this.tabManager.remove(tabId);
+    const tabs = this.tabManager.getKeys();
     let activeTab = this.state.activeTab;
-    if (this.state.activeTab.id === tab.id) {
+    if (this.state.activeTab === tabId) {
       activeTab = null;
     }
     if (this.state.tabs.length === 1) {
       activeTab = null;
     }
     if (!activeTab && this.state.tabs.length > 1) {
-      activeTab = this.state.tabs[0];
+      activeTab = tabs[0];
     }
+    this.tabManager.setActiveTab(activeTab);
     return this.setState({
       activeTab,
-      tabs: this.state.tabs.filter((t) => {
-        return t.id !== tab.id;
-      }),
+      tabs,
     });
   }
 
   render() {
+    const modules = this.tabManager.getModules();
 
+    const tabs = this.tabManager.getTabs();
 
 
     return (<div className="container-fluid no-gutters">
@@ -118,8 +115,8 @@ class IndexPage extends React.Component {
                     {"Camunda Manager"}
                   </h1>
                 ) : (
-                  <MemoryRouter key={this.state.activeTab.id} history={getHistory(this.state.activeTab)}>
-                    {getModuleForTab(this.state.activeTab).header()}
+                  <MemoryRouter key={this.state.activeTab} history={this.tabManager.getHistory(this.state.activeTab)}>
+                    {this.tabManager.getModuleForTab(this.state.activeTab).header()}
                   </MemoryRouter>
                 )}
               </div>
@@ -132,14 +129,14 @@ class IndexPage extends React.Component {
           </div>
           <div className="container-fluid no-gutters">
             <div className="row tab-header-row">
-              {this.state.tabs.map((tab) => {
+              {tabs.map((tab) => {
                 return (<div key={tab.id} className="col-auto">
-                  <div onClick={() => this.setActiveTab(tab)} className={`tab-header ${this.state.activeTab ? (this.state.activeTab.id === tab.id ? "active" : "") : ""}`}>
-                    <a href="#" className="tab-close" onClick={(e) => this.closeTab(e, tab)}>
+                  <div onClick={() => this.setActiveTab(tab.id)} className={`tab-header ${this.state.activeTab ? (this.state.activeTab === tab.id ? "active" : "") : ""}`}>
+                    <a href="#" className="tab-close" onClick={(e) => this.closeTab(e, tab.id)}>
                       <i className="fal fa-times-square" />
                     </a>
-                    <MemoryRouter history={getHistory(tab)}>
-                      {getModuleForTab(tab).title()}
+                    <MemoryRouter history={this.tabManager.getHistory(tab.id)}>
+                      {this.tabManager.getModuleForTab(tab.id).title()}
                     </MemoryRouter>
                   </div>
                 </div>);
@@ -147,13 +144,12 @@ class IndexPage extends React.Component {
             </div>
             <div className="row">
               {
-                this.state.tabs.map((tab) => {
-                  console.log("TAB", tab);
-                  const mod = getModuleForTab(tab);
+                tabs.map((tab) => {
+                  const mod = this.tabManager.getModuleForTab(tab.id);
                   const Render = mod.render;
-                  return (<div key={tab.id} style={{display: tab.id === (this.state.activeTab || {}).id ? undefined : "none", width: "100%" }}>
-                    <MemoryRouter history={getHistory(tab)}>
-                      <Render tab={this.state.activeTab} />
+                  return (<div key={tab.id} style={{display: tab.id === this.state.activeTab ? undefined : "none", width: "100%" }}>
+                    <MemoryRouter history={this.tabManager.getHistory(tab.id)}>
+                      <Render tab={tab} />
                     </MemoryRouter>
                   </div>);
                 })
