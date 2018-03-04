@@ -3,31 +3,7 @@ import Link from "gatsby-link";
 import {Router as MemoryRouter} from "react-router";
 
 import TabManager from "../managers/tabs";
-
-
-// let tabs = {};
-
-
-
-// let histories = {};
-// function getHistory(tab) {
-//   return tabs[tab.id].history;
-// }
-// function createHistory(tab) {
-//   tabs[tab.id].history = createMemoryHistory({
-//     initialEntries: ["/"], // The initial URLs in the history stack
-//     initialIndex: 0, // The starting index in the history stack
-//     keyLength: 6, // The length of location.key
-//     // A function to use to confirm navigation with the user. Required
-//     // if you return string prompts from transition hooks (see below)
-//     getUserConfirmation: null,
-//   });
-//   return histories[tab.id];
-// }
-// function deleteHistory(tab) {
-//   delete histories[tab.id];
-// }
-
+import ApolloManager from "../managers/apollo";
 
 
 class IndexPage extends React.Component {
@@ -86,79 +62,81 @@ class IndexPage extends React.Component {
     const tabs = this.tabManager.getTabs();
 
 
-    return (<div className="container-fluid no-gutters">
-      <div className="row">
-        <div className="col-md-auto col-12">
-          <ul className="navmenu">
-            <li>
-              <Link to="/" exact activeClassName="active">
-                <i className="fal fa-home" />
-              </Link>
-            </li>
-            {Object.keys(modules).map((moduleName) => {
-              const module = modules[moduleName];
-              return (<li key={module.name}>
-                <a href="#" onClick={() => this.addTab(module.name)}>
-                  <i className={`fal ${module.icon}`} />
-                </a>
-              </li>);
-            })}
-          </ul>
-        </div>
-        <div className="col">
-          <div className="container-fluid">
-            <div className="row header">
-              <div className="col-auto">
-                {!this.state.activeTab ? (
-                  <h1>
-                    <i className={"fal fa-home header-icon"} />
-                    {"Camunda Manager"}
-                  </h1>
-                ) : (
-                  <MemoryRouter key={this.state.activeTab} history={this.tabManager.getHistory(this.state.activeTab)}>
-                    {this.tabManager.getModuleForTab(this.state.activeTab).header()}
-                  </MemoryRouter>
-                )}
-              </div>
-              {this.state.activeTab ? (<div className="col header-close-icon" style={{textAlign: "right"}}>
-                <a href="#" className="tab-close" onClick={(e) => this.closeTab(e, this.state.activeTab)}>
-                  <i className="fal fa-times"/>
-                </a>
-              </div>) : undefined}
-            </div>
-          </div>
-          <div className="container-fluid no-gutters">
-            <div className="row tab-header-row">
-              {tabs.map((tab) => {
-                return (<div key={tab.id} className="col-auto">
-                  <div onClick={() => this.setActiveTab(tab.id)} className={`tab-header ${this.state.activeTab ? (this.state.activeTab === tab.id ? "active" : "") : ""}`}>
-                    <a href="#" className="tab-close" onClick={(e) => this.closeTab(e, tab.id)}>
-                      <i className="fal fa-times-square" />
-                    </a>
-                    <MemoryRouter history={this.tabManager.getHistory(tab.id)}>
-                      {this.tabManager.getModuleForTab(tab.id).title()}
-                    </MemoryRouter>
-                  </div>
-                </div>);
+    return (<ApolloManager>
+      <div className="container-fluid no-gutters">
+        <div className="row">
+          <div className="col-md-auto col-12">
+            <ul className="navmenu">
+              <li>
+                <Link to="/" exact activeClassName="active">
+                  <i className="fal fa-home" />
+                </Link>
+              </li>
+              {Object.keys(modules).map((moduleName) => {
+                const module = modules[moduleName];
+                return (<li key={module.name}>
+                  <a href="#" onClick={() => this.addTab(module.name)}>
+                    <i className={`fal ${module.icon}`} />
+                  </a>
+                </li>);
               })}
-            </div>
-            <div className="row">
-              {
-                tabs.map((tab) => {
-                  const mod = this.tabManager.getModuleForTab(tab.id);
-                  const Render = mod.render;
-                  return (<div key={tab.id} style={{display: tab.id === this.state.activeTab ? undefined : "none", width: "100%" }}>
-                    <MemoryRouter history={this.tabManager.getHistory(tab.id)}>
-                      <Render tab={tab} />
+            </ul>
+          </div>
+          <div className="col">
+            <div className="container-fluid">
+              <div className="row header">
+                <div className="col-auto">
+                  {!this.state.activeTab ? (
+                    <h1>
+                      <i className={"fal fa-home header-icon"} />
+                      {"Camunda Manager"}
+                    </h1>
+                  ) : (
+                    <MemoryRouter key={this.state.activeTab} history={this.tabManager.getHistory(this.state.activeTab)}>
+                      {this.tabManager.getModuleForTab(this.state.activeTab).header()}
                     </MemoryRouter>
+                  )}
+                </div>
+                {this.state.activeTab ? (<div className="col header-close-icon" style={{textAlign: "right"}}>
+                  <a href="#" className="tab-close" onClick={(e) => this.closeTab(e, this.state.activeTab)}>
+                    <i className="fal fa-times"/>
+                  </a>
+                </div>) : undefined}
+              </div>
+            </div>
+            <div className="container-fluid no-gutters">
+              <div className="row tab-header-row">
+                {tabs.map((tab) => {
+                  return (<div key={tab.id} className="col-auto">
+                    <div onClick={() => this.setActiveTab(tab.id)} className={`tab-header ${this.state.activeTab ? (this.state.activeTab === tab.id ? "active" : "") : ""}`}>
+                      <a href="#" className="tab-close" onClick={(e) => this.closeTab(e, tab.id)}>
+                        <i className="fal fa-times-square" />
+                      </a>
+                      <MemoryRouter history={this.tabManager.getHistory(tab.id)}>
+                        {this.tabManager.getModuleForTab(tab.id).title()}
+                      </MemoryRouter>
+                    </div>
                   </div>);
-                })
-              }
+                })}
+              </div>
+              <div className="row">
+                {
+                  tabs.map((tab) => {
+                    const mod = this.tabManager.getModuleForTab(tab.id);
+                    const Render = mod.render;
+                    return (<div key={tab.id} style={{display: tab.id === this.state.activeTab ? undefined : "none", width: "100%" }}>
+                      <MemoryRouter history={this.tabManager.getHistory(tab.id)}>
+                        <Render tab={tab} />
+                      </MemoryRouter>
+                    </div>);
+                  })
+                }
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>);
+    </ApolloManager>);
   }
 }
 
