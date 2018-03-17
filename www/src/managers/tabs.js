@@ -5,11 +5,13 @@ import uuid from "uuid/v4";
 
 import DeploymentModule from "../modules/deployments";
 import HelloModule from "../modules/hello";
+import DatamapperModule from "../modules/datamapper";
+
 export default class TabManager {
   constructor() {
     this.modules = {};
 
-    [DeploymentModule, HelloModule].forEach((module) => {
+    [DeploymentModule, HelloModule, DatamapperModule].forEach((module) => {
       this.modules[module.name] = module;
     });
 

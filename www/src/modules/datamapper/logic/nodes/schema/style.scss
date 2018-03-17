@@ -1,0 +1,16 @@
+.schema-node {
+  border: 2px solid #000;
+  .container-fluid > .row {
+    border-bottom: 1px solid #000;
+  }
+  .container-fluid > .row:last-child {
+    border-bottom: none;
+  }
+  .label {
+    background: #fff;
+  }
+  select {
+    width: 100%;
+    color: #000;
+  }
+}

@@ -1,0 +1,10 @@
+.menu-row {
+  > .menu-item > i {
+    padding: 10px;
+    cursor: pointer;
+    &:hover {
+      color: #fff;
+      background-color: #0071BC;
+    }
+  }
+}
