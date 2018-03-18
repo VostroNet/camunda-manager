@@ -1,0 +1,58 @@
+{
+  "id": "http://schema.vostronet.com/#",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "definitions": {
+    "user": {
+      "type": "object",
+      "required": ["id", "firstName", "lastName", "devices"],
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "devices": {
+          "type": "array",
+          "items": {
+            "$ref": "#device"
+          }
+        }
+      }
+    },
+    "device": {
+      "title": "Device",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "name"]
+    },
+    "simple-user": {
+      "type": "object",
+      "required": ["id", "name", "deviceIds"],
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "deviceIds": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

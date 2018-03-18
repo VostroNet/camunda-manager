@@ -22,8 +22,8 @@ export default class SchemaNodeWidget extends React.Component {
   }
 
   render() {
-
-
+    const {keys, options} = this.props.node;
+    const {type, title} = options;
     return (
       <div className="schema-node"
         style={{
@@ -33,30 +33,26 @@ export default class SchemaNodeWidget extends React.Component {
         <div className="container-fluid no-gutters">
           <div className="row">
             <div className="col-12">
-              <select onChange={(e) => this.handleSchemaChange(e)} value={this.state.type}>
-                <option value="user">{"User"}</option>
-                <option value="device">{"Device"}</option>
-              </select>
+              {title}
             </div>
           </div>
 
-          {Object.keys(this.props.node.ports).map((portName) => {
-            const {side} = this.props.node.options;
-            switch (side) {
-              case "left":
-                return (<div key={portName} className="row">
+          {Object.keys(keys).map((portName) => {
+            switch (type) {
+              case "output":
+                return (<div key={portName} className="row align-items-center">
                   <div className="col-auto">
                     <PortWidget name={portName} node={this.props.node} />
                   </div>
                   <div className="col label">
-                    {portName}
+                    {keys[portName]}
                   </div>
                 </div>);
 
-              case "right":
-                return (<div key={portName} className="row">
+              case "input":
+                return (<div key={portName} className="row align-items-center">
                   <div className="col label">
-                    {portName}
+                    {keys[portName]}
                   </div>
                   <div className="col-auto">
                     <PortWidget name={portName} node={this.props.node} />
