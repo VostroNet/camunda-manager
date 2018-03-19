@@ -24,6 +24,11 @@ export default function Diagram(props, context) {
   engine.registerNodeFactory(new ComponentPortFactory());
 
   var model = new DiagramModel();
+  model.addListener({
+    linksUpdated() {
+      console.log("linksUpdated", arguments);
+    },
+  });
   const project = context.mapper.getProject();
 
   if (project) {
@@ -71,26 +76,8 @@ export default function Diagram(props, context) {
       }
     });
   }
-  // //4) add the models to the root graph
-  // context.mapper.model.addAll(node1, node2, link1, node3, node4);
-  // context.mapper.refresh();
-  //3-A) create a default node
-  // var node1 = new DefaultNodeModel("Node 1", "rgb(0,192,255)");
-  // let port1 = node1.addOutPort("Out");
-  // node1.setPosition(100, 100);
-
-  // //3-B) create another default node
-  // var node2 = new DefaultNodeModel("Node 2", "rgb(192,255,0)");
-  // let port2 = node2.addInPort("In");
-  // node2.setPosition(400, 100);
-
-  // // link the ports
-  // let link1 = port1.link(port2);
-  // link1.addLabel("Hello World!");
-
-  //4) add the models to the root graph
-
-  //5) load model into engine
+  var str = JSON.stringify(model.serializeDiagram());
+  console.log("serial", str);
   engine.setDiagramModel(model);
 
   //6) render the diagram!

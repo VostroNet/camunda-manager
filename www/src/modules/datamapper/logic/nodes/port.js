@@ -2,24 +2,24 @@
 import { PortModel, DefaultLinkModel } from "storm-react-diagrams";
 
 export default class ComponentPortModel extends PortModel {
-  constructor(pos = "top") {
-    super(pos, "schema");
-    this.position = pos;
+  constructor(name, type) {
+    super(name, "port");
+    this.name = name;
   }
 
   serialize() {
     return Object.assign(super.serialize(), {
-      position: this.position,
+      name: this.name,
     });
   }
 
   deSerialize(data, engine) {
     super.deSerialize(data, engine);
-    this.position = data.position;
+    this.name = data.name;
   }
 
   createLinkModel() {
-    return new DefaultLinkModel();
+    return new DefaultLinkModel("link");
   }
   link(port) {
     let link = this.createLinkModel();
@@ -33,10 +33,5 @@ export default class ComponentPortModel extends PortModel {
     //   return this.in !== port.in;
     // }
     return true;
-  }
-
-  createLinkModel() {
-    let link = super.createLinkModel();
-    return link || new DefaultLinkModel();
   }
 }
